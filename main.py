@@ -11,11 +11,11 @@ scores = arena.scores
 scores_sorted = sorted(scores.items(), key=lambda entry: entry[1], reverse=True)
 
 
-longest_index = len(str(len(scores_sorted)))
+longest_index = len(str(len(scores_sorted))) + 2
 longest_name = max(*[len(x[0]) for x in scores_sorted])
 longest_score = max(*[len(str(x[1])) for x in scores_sorted])
 
-line_length = 2 + longest_index + 2 + longest_name + 2 + longest_score + 2
+line_length = 2 + longest_index + longest_name + 2 + longest_score + 2
 
 print("#" + "-" * (line_length - 2) + "#")
 
