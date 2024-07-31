@@ -6,7 +6,8 @@ OPTIONS = Literal["rock", "paper", "scissors"]
 ROUNDS = 2000
 GAMES = 10
 NO_POINT_THRESHOLD = 0.05
-POINTS_PER_GAME = 10
+MAX_POINTS_PER_GAME = 10
+MAX_POINT_THRESHOLD = 0.8
 
 
 class Strategy(ABC):
@@ -80,8 +81,30 @@ class Arena:
                     ):
                         continue
 
-                    first_score = round(POINTS_PER_GAME * wins1 / (wins1 + wins2))
+                    first_score = (
+                        max(
+                            min(
+                                (wins1 / (wins1 + wins2) - 0.5)
+                                / (MAX_POINT_THRESHOLD - 0.5),
+                                1,
+                            ),
+                            -1,
+                        )
+                        * MAX_POINTS_PER_GAME
+                    )
+
+                    second_score = (
+                        max(
+                            min(
+                                (wins2 / (wins1 + wins2) - 0.5)
+                                / (MAX_POINT_THRESHOLD - 0.5),
+                                1,
+                            ),
+                            -1,
+                        )
+                        * MAX_POINTS_PER_GAME
+                    )
 
                     self.scores[strategy1.name] += first_score
 
-                    self.scores[strategy2.name] += POINTS_PER_GAME - first_score
+                    self.scores[strategy2.name] += second_score
