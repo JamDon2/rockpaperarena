@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .table-container {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            margin-left: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-5">Competition Results</h1>
+        <div class="table-container mx-auto">
+            <table id="results-table" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Author</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in strategy_total_scores %}
+                    <tr>
+                        <td><a href="#" class="strategy-link">{{ row['Strategy'] }}</a></td>
+                        <td>{{ row['Author'] }}</td>
+                        <td>{{ row['Score'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center">
+            <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>$(document).ready(function () {
+            $('#results-table').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "order": [[2, 'desc']],  // Default sorting by the Score column, descending
+                "info": true
+            });
+
+            $('.strategy-link').on('click', function () {
+                var strategy = $(this).text();
+                window.location.href = '/strategy/' + encodeURIComponent(strategy);
+            });
+        });</script>
+</body>
+</html>

@@ -1,16 +1,18 @@
 from abc import ABC, abstractmethod
 from typing import Literal, Type
+import pandas as pd
 
 
 OPTIONS = Literal["rock", "paper", "scissors"]
-ROUNDS = 2000
-GAMES = 10
-NO_POINT_THRESHOLD = 0.05
+ROUNDS = 20
+GAMES = 20
+NO_POINT_THRESHOLD = 0.001
 POINTS_PER_GAME = 10
 
 
 class Strategy(ABC):
     name: str
+    author: str
 
     @abstractmethod
     def play(self) -> OPTIONS:
@@ -32,6 +34,8 @@ class Game:
     def _play(self) -> None:
         choice1 = self.strategy1.play()
         choice2 = self.strategy2.play()
+        
+        #print(choice1, choice2)
 
         self.strategy1.handle_moves(choice1, choice2)
         self.strategy2.handle_moves(choice2, choice1)
@@ -58,6 +62,7 @@ class Arena:
     def __init__(self, strategies: list[Type[Strategy]]) -> None:
         self.strategies = strategies
         self.scores = {}
+        self.result_vector = []
 
     def start(self) -> None:
         for i in range(GAMES):
@@ -80,8 +85,14 @@ class Arena:
                     ):
                         continue
 
-                    first_score = round(POINTS_PER_GAME * wins1 / (wins1 + wins2))
+                    first_score = round(POINTS_PER_GAME * wins1 / (wins1 + wins2), 3)
+                    
+                    result = [i+1, strategy1.name, strategy1.author, strategy2.name, strategy2.author, first_score, POINTS_PER_GAME - first_score]
+
+                    self.result_vector.append(result)
 
                     self.scores[strategy1.name] += first_score
 
                     self.scores[strategy2.name] += POINTS_PER_GAME - first_score
+                    
+        return pd.DataFrame(self.result_vector, columns = ["GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Startegy1_score", "Strategy2_score"])

@@ -4,12 +4,13 @@ from typing import Literal
 import random
 
 
-class RandomStrategy(Strategy):
-    name = "RandomStrategy"
-    author = "ReicherGabor"
+class RandomStrategy_biased(Strategy):
+    
+    name = "RandomStrategy_biased"
+    author = "BohnerAdrian"
 
     def play(self) -> Literal["rock"] | Literal["paper"] | Literal["scissors"]:
-        return random.choice(["rock", "paper", "scissors"])
+        return random.choice(["rock", "paper", "scissors", "rock", "rock"])
 
     def handle_moves(
         self,
@@ -17,6 +18,7 @@ class RandomStrategy(Strategy):
         opponent_move: Literal["rock"] | Literal["paper"] | Literal["scissors"],
     ):
         pass
+    
 
+strategy = RandomStrategy_biased
 
-strategy = RandomStrategy

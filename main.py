@@ -1,35 +1,17 @@
 from arena import Arena
 from util import import_strategies
+import pandas as pd
+from tabulate import tabulate
 
 arena = Arena(import_strategies("strategies"))
 
 
-arena.start()
+result_df = arena.start()
 
-scores = arena.scores
+strategy_scores = pd.concat([
+    result_df[['Strategy1', 'Author1', 'Startegy1_score']].rename(columns={'Strategy1': 'Strategy', 'Author1': 'Author', 'Startegy1_score': 'Score'}),
+    result_df[['Strategy2', 'Author2', 'Strategy2_score']].rename(columns={'Strategy2': 'Strategy', 'Author2': 'Author', 'Strategy2_score': 'Score'})
+])
 
-scores_sorted = sorted(scores.items(), key=lambda entry: entry[1], reverse=True)
-
-
-longest_index = len(str(len(scores_sorted)))
-longest_name = max(*[len(x[0]) for x in scores_sorted])
-longest_score = max(*[len(str(x[1])) for x in scores_sorted])
-
-line_length = 2 + longest_index + 2 + longest_name + 2 + longest_score + 2
-
-print("#" + "-" * (line_length - 2) + "#")
-
-for i, (name, score) in enumerate(scores_sorted):
-    print(
-        "| "
-        + f"{i+1}. ".ljust(longest_index, " ")
-        + str(name).ljust(longest_name, " ")
-        + "  "
-        + str(score).rjust(longest_score, " ")
-        + " |"
-    )
-
-    if i + 1 < len(scores_sorted):
-        print("|" + "-" * (line_length - 2) + "|")
-
-print("#" + "-" * (line_length - 2) + "#")
+# Group by the strategy and sum the scores
+strategy_total_scores = strategy_scores.groupby(['Strategy', 'Author'])['Score'].sum().reset_index().sort_values('Score', ascending = False)
