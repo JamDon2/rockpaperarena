@@ -1,4 +1,4 @@
-from arena import Strategy, Game
+from arena import Game
 from util import import_strategies
 
 ROUNDS = 10000
