@@ -59,18 +59,21 @@ class Game:
 
 
 class Arena:
-    def __init__(self, strategies: list[Type[Strategy]]) -> None:
+    def __init__(self, strategies: list[Type[Strategy]], rounds, games, points_per_game) -> None:
         self.strategies = strategies
         self.scores = {}
         self.result_vector = []
+        self.rounds = rounds
+        self.games = games
+        self.points_per_game = points_per_game
 
     def start(self) -> None:
-        for i in range(GAMES):
+        for i in range(self.games):
             for strategy1_id, strategy1 in enumerate(self.strategies):
                 for strategy2 in self.strategies[:strategy1_id]:
                     game = Game(strategy1(), strategy2())
 
-                    wins1, wins2, ties = game.play_rounds()
+                    wins1, wins2, ties = game.play_rounds(n = self.rounds)
 
                     if strategy1.name not in self.scores:
                         self.scores[strategy1.name] = 0
@@ -85,14 +88,20 @@ class Arena:
                     ):
                         continue
 
-                    first_score = round(POINTS_PER_GAME * wins1 / (wins1 + wins2), 3)
+                    first_score = round(self.points_per_game * wins1 / (wins1 + wins2), 3)
                     
-                    result = [i+1, strategy1.name, strategy1.author, strategy2.name, strategy2.author, first_score, POINTS_PER_GAME - first_score]
+                    result = [i+1, strategy1.name, strategy1.author, strategy2.name, strategy2.author, first_score, self.points_per_game - first_score]
 
                     self.result_vector.append(result)
 
                     self.scores[strategy1.name] += first_score
 
-                    self.scores[strategy2.name] += POINTS_PER_GAME - first_score
+                    self.scores[strategy2.name] += self.points_per_game - first_score
                     
-        return pd.DataFrame(self.result_vector, columns = ["GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Startegy1_score", "Strategy2_score"])
+        result_df = pd.DataFrame(self.result_vector, columns = ["GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Startegy1_score", "Strategy2_score"])
+        
+        result_df["Startegy1_score"].round(3)
+        
+        result_df["Startegy1_score"].round(3)
+                    
+        return result_df
