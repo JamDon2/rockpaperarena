@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, session, jsonify
+from flask import Blueprint, render_template, request, session, jsonify, send_file
 from arena import Arena
 from util import import_strategies
 from competition import Competition
 import pandas as pd
 import json
+from io import BytesIO
+
 
 bp = Blueprint('routes', __name__)
 competition = Competition()
@@ -54,7 +56,25 @@ def results():
     else:
         return render_template('index.html', error="No results available. Please run a new competition.")
         
+# Assuming result_df is stored in session or can be recreated
+@bp.route('/export_results', methods=['GET'])
+def export_results():
+    # Retrieve result_df from session or recreate it
+    result_data = session.get('result_df', None)
+    if result_data is None:
+        return "No data available to export", 404
 
+    result_df = pd.DataFrame(result_data)
+    
+    # Create an Excel file in memory using openpyxl
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        result_df.to_excel(writer, index=False, sheet_name='Results')
+    
+    output.seek(0)
+
+    # Send the file as an Excel download
+    return send_file(output, download_name='competition_results.xlsx', as_attachment=True)
 
 @bp.route('/strategy/<strategy_name>')
 def strategy_details(strategy_name):

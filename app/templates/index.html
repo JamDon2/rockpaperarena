@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strategy Arena</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hover-label:hover {
+            color: #007bff; /* Change color on hover */
+            cursor: pointer; /* Change cursor to pointer */
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -25,21 +35,82 @@
             </div>
 
             <div class="form-group">
-                <label for="runs">Number of Runs</label>
+                <label for="runs" class="hover-label" data-toggle="modal" data-target="#runsModal">Number of Rounds</label>
                 <input type="number" class="form-control" id="runs" name="runs" min="1" value="100" required>
             </div>
             <div class="form-group">
-                <label for="games">Number of Games</label>
+                <label for="games" class="hover-label" data-toggle="modal" data-target="#gamesModal">Number of Games</label>
                 <input type="number" class="form-control" id="games" name="games" min="1" value="20" required>
             </div>
             <div class="form-group">
-                <label for="points-per-game">Points Per Game</label>
+                <label for="points-per-game" class="hover-label" data-toggle="modal" data-target="#pointsModal">Points Per Game</label>
                 <input type="number" class="form-control" id="points-per-game" name="points_per_game" min="1" value="10" required>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">Start Competition</button>
         </form>
     </div>
+
+    <!-- Modal Structure for Number of Rounds -->
+    <div class="modal fade" id="runsModal" tabindex="-1" aria-labelledby="runsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="runsModalLabel">Number of Rounds</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    The number of rounds indicates how many times each strategy will play against its opponent in a single game. Increasing the number of rounds can provide more accurate results by averaging out luck or chance elements.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure for Number of Games -->
+    <div class="modal fade" id="gamesModal" tabindex="-1" aria-labelledby="gamesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gamesModalLabel">Number of Games</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    The total number of games determines how many distinct matchups will occur in the competition. Each game will involve different strategies or different configurations of the same strategies.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure for Points Per Game -->
+    <div class="modal fade" id="pointsModal" tabindex="-1" aria-labelledby="pointsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pointsModalLabel">Points Per Game</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    The points per game represent the scoring mechanism for the competition. Each game will award points to the winning strategy, which accumulates to determine overall performance.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
