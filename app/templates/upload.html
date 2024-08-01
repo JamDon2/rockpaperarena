@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Strategy</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
+    <style>
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e3e3e3;
+        }
+
+        .info-section {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #d6d8db;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Strategy Arena</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/results">Results</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/upload">Upload Strategy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/visualization">Visualization</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center">Upload a New Strategy</h1>
+
+        <div class="mt-5">
+            <h3>Strategy Script Requirements</h3>
+            <p>To ensure your strategy script works correctly, please follow these guidelines:</p>
+            <ul>
+                <li>The script must define a class that implements the <code>Strategy</code> interface.</li>
+                <li>Implement the methods <code>play()</code> and <code>handle_moves()</code> in your class.</li>
+                <li>Your class should have a <code>name</code> and <code>author</code> attribute.</li>
+                <li>Ensure that the script is self-contained and does not require external dependencies.</li>
+            </ul>
+
+            <h4>Example Strategy Class</h4>
+            <pre><code class="python">
+from abc import ABC, abstractmethod
+import random
+
+class Strategy(ABC):
+    name = "BasicStrategy"
+    author = "Your Name"
+
+    def __init__(self):
+        self.history = []
+
+    @abstractmethod
+    def play(self):
+        pass
+
+    @abstractmethod
+    def handle_moves(self, own_move, opponent_move):
+        pass
+
+class RandomStrategy(Strategy):
+    def __init__(self):
+        super().__init__()
+        self.name = "Random Strategy"
+        self.author = "Your Name"
+
+    def play(self):
+        return random.choice(["rock", "paper", "scissors"])
+
+    def handle_moves(self, own_move, opponent_move):
+        self.history.append((own_move, opponent_move))
+            </code></pre>
+            <p>
+                In the above example, <code>RandomStrategy</code> is a basic strategy that randomly chooses between "rock", "paper", and "scissors". Make sure your strategy implements similar methods and properties.
+            </p>
+
+            <h4>Adding Custom Functions</h4>
+            <p>You can extend the base strategy by adding custom functions. For example, you can add a <code>counter_move()</code> function to calculate the counter-move for a given move.</p>
+            <pre><code class="python">
+class EnhancedStrategy(Strategy):
+    def __init__(self):
+        super().__init__()
+        self.name = "Enhanced Strategy"
+        self.author = "Your Name"
+
+    def play(self):
+        # Implement your strategy logic here
+        pass
+
+    def handle_moves(self, own_move, opponent_move):
+        self.history.append((own_move, opponent_move))
+
+    def counter_move(self, move):
+        """Returns the counter-move for the given move."""
+        counter = {"rock": "paper", "paper": "scissors", "scissors": "rock"}
+        return counter.get(move, "rock")
+            </code></pre>
+            <p>
+                In the <code>EnhancedStrategy</code> class above, the <code>counter_move()</code> function calculates the best move to counter the opponent's move. Feel free to add other helper functions as needed.
+            </p>
+            <div class="info-section text-info">
+                Remember to adhere to the basic structure and ensure your script is self-contained. This template serves as a guideline to help you create a functional strategy script.
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <h2>Upload Your Strategy Script</h2>
+            <form method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Choose a Python script:</label>
+                    <input type="file" class="form-control-file" id="file" name="file" accept=".py" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-info mt-3">
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html>

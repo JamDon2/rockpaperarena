@@ -9,9 +9,9 @@ class Competition:
 
     def start_competition(self, selected_strategies, rounds, games, points_per_game):
         if 'All' in selected_strategies:
-            strategies = import_strategies("strategies")
+            strategies = import_strategies("app/strategies")
         else:
-            strategies = [s for s in import_strategies("strategies") if s.name in selected_strategies]
+            strategies = [s for s in import_strategies("app/strategies") if s.name in selected_strategies]
         
         arena = Arena(strategies, rounds, games, points_per_game)
         result_df = arena.start()

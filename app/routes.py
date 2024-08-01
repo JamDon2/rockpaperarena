@@ -1,18 +1,21 @@
-from flask import Blueprint, render_template, request, session, jsonify, send_file
+from flask import Blueprint, render_template, request, session, jsonify, send_file, flash, redirect, url_for
 from arena import Arena
 from util import import_strategies
 from competition import Competition
 import pandas as pd
 import json
 from io import BytesIO
-
+import os
 
 bp = Blueprint('routes', __name__)
 competition = Competition()
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'py'}
+
 @bp.route('/')
 def index():
-    strategies = import_strategies("strategies")
+    strategies = import_strategies("app/strategies")
     return render_template('index.html', strategies=strategies)
 
 
@@ -92,4 +95,25 @@ def get_data():
     result_df = session.get('result_df', [])
     #print(result_df)
     return jsonify(result_df)
+
+@bp.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = file.filename
+            filepath = os.path.join(os.path.dirname(__file__), 'strategies', filename)
+            file.save(filepath)
+            flash(f'File successfully uploaded to {filepath}')
+            return redirect(url_for('routes.upload_file'))
+        else:
+            flash('Allowed file types are .py')
+            return redirect(request.url)
+    return render_template('upload.html')
 
