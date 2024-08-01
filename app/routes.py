@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, jsonify
 from arena import Arena
 from util import import_strategies
 from competition import Competition
 import pandas as pd
+import json
 
 bp = Blueprint('routes', __name__)
 competition = Competition()
@@ -27,6 +28,7 @@ def results():
                                                   points_per_game = points_per_game)
         
         #print(result_df)
+        
 
         strategy_scores = pd.concat([
             result_df[['Strategy1', 'Author1', 'Startegy1_score']].rename(columns={'Strategy1': 'Strategy', 'Author1': 'Author', 'Startegy1_score': 'Score'}),
@@ -40,6 +42,7 @@ def results():
         top_scorers = strategy_total_scores.to_dict(orient = 'records')
 
         # Store the results in the session
+        session['result_df'] = result_df.to_dict(orient='records')
         session['results'] = top_scorers
 
     else:
@@ -56,6 +59,17 @@ def results():
 @bp.route('/strategy/<strategy_name>')
 def strategy_details(strategy_name):
     matches = competition.get_strategy_matches(strategy_name)
-    print(matches)
+    #print(matches)
     return render_template('strategy_details.html', strategy_name=strategy_name, matches=matches)
+
+@bp.route('/visualization')
+def visualization():
+    strategies = competition.get_unique_strategies()
+    return render_template('visualization.html', strategies=json.dumps(strategies))
+
+@bp.route('/get_data', methods=['GET'])
+def get_data():
+    result_df = session.get('result_df', [])
+    #print(result_df)
+    return jsonify(result_df)
 

@@ -17,6 +17,15 @@ class Competition:
         result_df = arena.start()
         self.result_vector = arena.result_vector
         return result_df
+    
+    
+    def get_unique_strategies(self):
+        result_df = pd.DataFrame(self.result_vector, columns=[
+            "GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Startegy1_score", "Strategy2_score"
+        ])
+        strategies = pd.unique(result_df[['Strategy1', 'Strategy2']].values.ravel('K'))
+        return strategies.tolist()
+    
 
     def get_strategy_matches(self, strategy_name):
         

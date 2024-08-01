@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Visualization</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        .plot-container {
+            height: 500px;
+            width: 90%; /* Make each plot take full width of its container */
+            padding: 20px; /* Add padding inside each plot container for more space */
+        }
+
+        .plot-row {
+            margin-bottom: 50px; /* Increase space between rows */
+        }
+
+        .container {
+            max-width: 90%; /* Set a maximum width for the main container */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Dynamic Visualizations</h1>
+
+        <div class="form-group">
+            <label for="strategy-select">Select Strategy:</label>
+            <select id="strategy-select" class="form-control">
+                <option value="All">All</option>
+            </select>
+        </div>
+
+        <div class="row plot-row">
+            <div class="col-md-6">
+                <div id="bar-chart" class="plot-container"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="heatmap" class="plot-container"></div>
+            </div>
+        </div>
+        <div class="row plot-row">
+            <div class="col-md-6">
+                <div id="line-plot" class="plot-container"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="box-plot" class="plot-container"></div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-secondary mr-2">Back to Home</a>
+            <a href="/results" class="btn btn-primary">Back to Results</a>
+        </div>
+    </div>
+
+    <script>
+        // Load strategies into the dropdown
+        var strategies = {{ strategies | safe }};
+        var strategySelect = document.getElementById('strategy-select');
+        strategies.forEach(function(strategy) {
+            var option = document.createElement('option');
+            option.text = strategy;
+            option.value = strategy;
+            strategySelect.add(option);
+        });
+
+        // Fetch data and render plots
+        function fetchDataAndRenderPlots(selectedStrategy) {
+            $.get('/get_data', function(data) {
+                // Filter data if a specific strategy is selected
+                if (selectedStrategy && selectedStrategy !== 'All') {
+                    data = data.filter(function(d) {
+                        return d.Strategy1 === selectedStrategy || d.Strategy2 === selectedStrategy;
+                    });
+                }
+
+                // Convert data to Plotly format and render each plot
+                renderBarChart(data);
+                renderHeatmap(data);
+                renderLinePlot(data);
+                renderBoxPlot(data);
+            });
+        }
+
+        // Initial plot rendering with all data
+        fetchDataAndRenderPlots();
+
+        // Update plots on strategy selection
+        strategySelect.addEventListener('change', function() {
+            fetchDataAndRenderPlots(this.value);
+        });
+
+        // Plotly rendering functions
+        function renderBarChart(data) {
+            var strategyScores = data.reduce(function(acc, val) {
+                acc[val.Strategy1] = (acc[val.Strategy1] || 0) + val.Startegy1_score;
+                acc[val.Strategy2] = (acc[val.Strategy2] || 0) + val.Strategy2_score;
+                return acc;
+            }, {});
+
+            var scores = Object.keys(strategyScores).map(function(key) {
+                return { strategy: key, score: strategyScores[key] };
+            });
+
+            var trace = {
+                x: scores.map(d => d.strategy),
+                y: scores.map(d => d.score),
+                type: 'bar'
+            };
+
+            Plotly.newPlot('bar-chart', [trace], {
+                title: 'Total Scores by Strategy',
+                margin: { t: 50, b: 100 }  // Add more margin for the x-axis labels
+            });
+        }
+
+        function renderHeatmap(data) {
+            // Transform data for heatmap
+            var strategies = [...new Set(data.flatMap(d => [d.Strategy1, d.Strategy2]))];
+            var heatmapData = strategies.map(s1 => strategies.map(s2 => {
+                var filtered = data.filter(d => (d.Strategy1 === s1 && d.Strategy2 === s2) || (d.Strategy1 === s2 && d.Strategy2 === s1));
+                return filtered.length ? filtered.reduce((sum, d) => sum + (d.Strategy1 === s1 ? d.Startegy1_score : d.Strategy2_score), 0) / filtered.length : 0;
+            }));
+
+            var trace = {
+                z: heatmapData,
+                x: strategies,
+                y: strategies,
+                type: 'heatmap',
+                colorscale: 'Viridis'
+            };
+
+            Plotly.newPlot('heatmap', [trace], {
+                title: 'Strategy vs. Strategy Performance',
+                margin: { t: 50, b: 100, l: 150, r: 50 }  // Add more margin for the y-axis labels
+            });  // Add more margin for the x-axis labels
+            
+        }
+
+        function renderLinePlot(data) {
+    var selectedStrategy = strategySelect.value;
+
+    var traces = [];
+
+    if (selectedStrategy === 'All') {
+        // Get unique strategies from data
+        var strategies = [...new Set(data.flatMap(d => [d.Strategy1, d.Strategy2]))];
+
+        strategies.forEach(strategy => {
+            var strategyScores = data.filter(d => d.Strategy1 === strategy || d.Strategy2 === strategy)
+                                     .map(d => ({
+                                         GameNumber: d.GameNumber,
+                                         Score: d.Strategy1 === strategy ? d.Startegy1_score : d.Strategy2_score
+                                     }));
+            
+            strategyScores.sort((a, b) => a.GameNumber - b.GameNumber);
+
+            var cumulativeScore = 0;
+            var cumulativeScores = strategyScores.map(d => {
+                cumulativeScore += d.Score;
+                return {
+                    GameNumber: d.GameNumber,
+                    CumulativeScore: cumulativeScore
+                };
+            });
+
+            traces.push({
+                x: cumulativeScores.map(d => d.GameNumber),
+                y: cumulativeScores.map(d => d.CumulativeScore),
+                mode: 'lines',
+                name: strategy
+            });
+        });
+
+    } else {
+        var strategyScores = data.filter(d => d.Strategy1 === selectedStrategy || d.Strategy2 === selectedStrategy)
+                                 .map(d => ({
+                                     GameNumber: d.GameNumber,
+                                     Score: d.Strategy1 === selectedStrategy ? d.Startegy1_score : d.Strategy2_score
+                                 }));
+
+        strategyScores.sort((a, b) => a.GameNumber - b.GameNumber);
+
+        var cumulativeScore = 0;
+        var cumulativeScores = strategyScores.map(d => {
+            cumulativeScore += d.Score;
+            return {
+                GameNumber: d.GameNumber,
+                CumulativeScore: cumulativeScore
+            };
+        });
+
+        traces.push({
+            x: cumulativeScores.map(d => d.GameNumber),
+            y: cumulativeScores.map(d => d.CumulativeScore),
+            mode: 'lines',
+            name: selectedStrategy
+        });
+    }
+
+    Plotly.newPlot('line-plot', traces, { 
+        title: selectedStrategy === 'All' ? 'Cumulative Scores Over Time for All Strategies' : `Cumulative Score Over Time for ${selectedStrategy}`,
+        margin: { t: 50, b: 100 },  // Add more margin for the x-axis labels
+        xaxis: {
+            title: 'Game Number'
+        },
+        yaxis: {
+            title: 'Cumulative Score'
+        }
+    });
+}
+    
+
+        function renderBoxPlot(data) {
+            var strategyScores = data.reduce((acc, val) => {
+                acc[val.Strategy1] = acc[val.Strategy1] || [];
+                acc[val.Strategy1].push(val.Startegy1_score);
+                acc[val.Strategy2] = acc[val.Strategy2] || [];
+                acc[val.Strategy2].push(val.Strategy2_score);
+                return acc;
+            }, {});
+
+            var trace = Object.keys(strategyScores).map(strategy => ({
+                y: strategyScores[strategy],
+                type: 'box',
+                name: strategy
+            }));
+
+            Plotly.newPlot('box-plot', trace, {
+                title: 'Score Distribution by Strategy',
+                margin: { t: 50, b: 100 }  // Add more margin for the x-axis labels
+            });
+        }
+    </script>
+</body>
+</html>
