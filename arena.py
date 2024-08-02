@@ -63,7 +63,7 @@ class Arena:
     def start(self) -> None:
         for i in range(GAMES):
             for strategy1_id, strategy1 in enumerate(self.strategies):
-                for strategy2 in self.strategies[:strategy1_id]:
+                for strategy2 in self.strategies[strategy1_id:]:
                     game = Game(strategy1(), strategy2())
 
                     wins1, wins2, ties = game.play_rounds()
