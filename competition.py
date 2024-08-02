@@ -21,7 +21,7 @@ class Competition:
     
     def get_unique_strategies(self):
         result_df = pd.DataFrame(self.result_vector, columns=[
-            "GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Startegy1_score", "Strategy2_score"
+            "GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Strategy1_score", "Strategy2_score"
         ])
         strategies = pd.unique(result_df[['Strategy1', 'Strategy2']].values.ravel('K'))
         return strategies.tolist()
@@ -30,16 +30,16 @@ class Competition:
     def get_strategy_matches(self, strategy_name):
         
         result_df = pd.DataFrame(self.result_vector, columns=[
-            "GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Startegy1_score", "Strategy2_score"
+            "GameNumber", "Strategy1", "Author1", "Strategy2", "Author2", "Strategy1_score", "Strategy2_score"
         ])
         
-        print(result_df)
+        #print(result_df)
         matches = result_df[(result_df['Strategy1'] == strategy_name) | (result_df['Strategy2'] == strategy_name)]
         
-        print(matches)
+        #print(matches)
         
         # Round the scores to 3 decimal places
-        matches['Startegy1_score'] = matches['Startegy1_score'].round(3)
+        matches['Strategy1_score'] = matches['Strategy1_score'].round(3)
         matches['Strategy2_score'] = matches['Strategy2_score'].round(3)
 
         return matches.to_dict(orient='records')

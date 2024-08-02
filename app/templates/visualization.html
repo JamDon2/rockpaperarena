@@ -24,6 +24,29 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Strategy Arena</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/results">Results</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/upload">Upload Strategy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/visualization">Visualization</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
     <div class="container mt-5">
         <h1 class="text-center">Dynamic Visualizations</h1>
 
@@ -97,7 +120,7 @@
         // Plotly rendering functions
         function renderBarChart(data) {
             var strategyScores = data.reduce(function(acc, val) {
-                acc[val.Strategy1] = (acc[val.Strategy1] || 0) + val.Startegy1_score;
+                acc[val.Strategy1] = (acc[val.Strategy1] || 0) + val.Strategy1_score;
                 acc[val.Strategy2] = (acc[val.Strategy2] || 0) + val.Strategy2_score;
                 return acc;
             }, {});
@@ -123,7 +146,7 @@
             var strategies = [...new Set(data.flatMap(d => [d.Strategy1, d.Strategy2]))];
             var heatmapData = strategies.map(s1 => strategies.map(s2 => {
                 var filtered = data.filter(d => (d.Strategy1 === s1 && d.Strategy2 === s2) || (d.Strategy1 === s2 && d.Strategy2 === s1));
-                return filtered.length ? filtered.reduce((sum, d) => sum + (d.Strategy1 === s1 ? d.Startegy1_score : d.Strategy2_score), 0) / filtered.length : 0;
+                return filtered.length ? filtered.reduce((sum, d) => sum + (d.Strategy1 === s1 ? d.Strategy1_score : d.Strategy2_score), 0) / filtered.length : 0;
             }));
 
             var trace = {
@@ -138,7 +161,7 @@
                 title: 'Strategy vs. Strategy Performance',
                 margin: { t: 50, b: 100, l: 150, r: 50 }  // Add more margin for the y-axis labels
             });  // Add more margin for the x-axis labels
-            
+
         }
 
         function renderLinePlot(data) {
@@ -154,9 +177,9 @@
             var strategyScores = data.filter(d => d.Strategy1 === strategy || d.Strategy2 === strategy)
                                      .map(d => ({
                                          GameNumber: d.GameNumber,
-                                         Score: d.Strategy1 === strategy ? d.Startegy1_score : d.Strategy2_score
+                                         Score: d.Strategy1 === strategy ? d.Strategy1_score : d.Strategy2_score
                                      }));
-            
+
             strategyScores.sort((a, b) => a.GameNumber - b.GameNumber);
 
             var cumulativeScore = 0;
@@ -180,7 +203,7 @@
         var strategyScores = data.filter(d => d.Strategy1 === selectedStrategy || d.Strategy2 === selectedStrategy)
                                  .map(d => ({
                                      GameNumber: d.GameNumber,
-                                     Score: d.Strategy1 === selectedStrategy ? d.Startegy1_score : d.Strategy2_score
+                                     Score: d.Strategy1 === selectedStrategy ? d.Strategy1_score : d.Strategy2_score
                                  }));
 
         strategyScores.sort((a, b) => a.GameNumber - b.GameNumber);
@@ -202,7 +225,7 @@
         });
     }
 
-    Plotly.newPlot('line-plot', traces, { 
+    Plotly.newPlot('line-plot', traces, {
         title: selectedStrategy === 'All' ? 'Cumulative Scores Over Time for All Strategies' : `Cumulative Score Over Time for ${selectedStrategy}`,
         margin: { t: 50, b: 100 },  // Add more margin for the x-axis labels
         xaxis: {
@@ -213,12 +236,12 @@
         }
     });
 }
-    
+
 
         function renderBoxPlot(data) {
             var strategyScores = data.reduce((acc, val) => {
                 acc[val.Strategy1] = acc[val.Strategy1] || [];
-                acc[val.Strategy1].push(val.Startegy1_score);
+                acc[val.Strategy1].push(val.Strategy1_score);
                 acc[val.Strategy2] = acc[val.Strategy2] || [];
                 acc[val.Strategy2].push(val.Strategy2_score);
                 return acc;

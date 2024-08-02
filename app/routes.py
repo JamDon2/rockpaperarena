@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, session, jsonify, send_file, flash, redirect, url_for
+from flask_sse import sse
 from arena import Arena
 from util import import_strategies
 from competition import Competition
@@ -34,9 +35,8 @@ def results():
         
         #print(result_df)
         
-
         strategy_scores = pd.concat([
-            result_df[['Strategy1', 'Author1', 'Startegy1_score']].rename(columns={'Strategy1': 'Strategy', 'Author1': 'Author', 'Startegy1_score': 'Score'}),
+            result_df[['Strategy1', 'Author1', 'Strategy1_score']].rename(columns={'Strategy1': 'Strategy', 'Author1': 'Author', 'Strategy1_score': 'Score'}),
             result_df[['Strategy2', 'Author2', 'Strategy2_score']].rename(columns={'Strategy2': 'Strategy', 'Author2': 'Author', 'Strategy2_score': 'Score'})
         ])
 
@@ -45,19 +45,25 @@ def results():
         #print(strategy_total_scores)
         
         top_scorers = strategy_total_scores.to_dict(orient = 'records')
+        
+        #print(result_df)
 
         # Store the results in the session
         session['result_df'] = result_df.to_dict(orient='records')
         session['results'] = top_scorers
 
+        # Return a success response for AJAX
+        return jsonify(success=True)
+
     else:
         # Retrieve results from the session if available
         top_scorers = session.get('results', None)
 
-    if len(top_scorers)>0:
-        return render_template('results.html', strategy_total_scores=top_scorers)
-    else:
-        return render_template('index.html', error="No results available. Please run a new competition.")
+        if top_scorers:
+            return render_template('results.html', strategy_total_scores=top_scorers)
+        else:
+            return render_template('index.html', error="No results available. Please run a new competition.")
+
         
 # Assuming result_df is stored in session or can be recreated
 @bp.route('/export_results', methods=['GET'])
@@ -117,3 +123,6 @@ def upload_file():
             return redirect(request.url)
     return render_template('upload.html')
 
+@bp.route('/progress')
+def progress():
+    return render_template('progress.html')

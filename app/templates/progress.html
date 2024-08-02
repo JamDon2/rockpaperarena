@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competition Progress</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Competition Progress</h1>
+        <div class="progress mt-5">
+            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">
+                0%
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <button id="stop-button" class="btn btn-danger">Stop Competition</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Setting up EventSource");
+            const eventSource = new EventSource("/stream");
+
+            eventSource.onopen = function () {
+                console.log("EventSource opened");
+            };
+
+            eventSource.addEventListener("progress", function (event) {
+                console.log("Progress event received");
+                console.log(event.data);  // Log the raw event data
+                const data = JSON.parse(event.data);
+                console.log("Parsed data:", data);
+                if (data.progress !== undefined) {
+                    const progress = data.progress;
+                    console.log("Updating progress bar to:", progress + '%');
+                    $('#progress-bar').css('width', progress + '%').attr('aria-valuenow', progress).text(progress.toFixed(2) + '%');
+                }
+                if (data.status === "complete") {
+                    console.log("Competition complete, redirecting to results");
+                    window.location.href = '/results';
+                }
+            });
+
+            eventSource.onerror = function (error) {
+                console.error("EventSource failed:", error);
+            };
+
+            $('#stop-button').click(function () {
+                console.log("Stop button clicked");
+                $.ajax({
+                    url: '/stop',
+                    type: 'POST',
+                    success: function(response) {
+                        console.log("Stop request successful");
+                        eventSource.close();
+                        alert("Competition stopped.");
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Stop request failed:", error);
+                        alert("Failed to stop the competition.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
