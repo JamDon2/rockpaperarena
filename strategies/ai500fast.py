@@ -9,7 +9,7 @@ class FastAI500Strategy(Strategy):
     author = "JamDon2"
 
     def __init__(self) -> None:
-        self.interpeter = Interpreter("model-500.tflite")
+        self.interpeter = Interpreter("model.tflite")
         self.runner = self.interpeter.get_signature_runner("serving_default")
         self.history = np.array([])
         self.option_to_tensor = {
